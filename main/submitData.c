@@ -18,7 +18,7 @@ double longitude = 0.0;
 uint64_t timestamp_ms = 0;
 
 static bool submitFloatData(char *variable_identifier, float variable_value, uint64_t timestamp_ms);
-static bool submitGeoData(char *variable_identifier, float latitude, float longitude, uint64_t timestamp_ms);
+static bool submitGeoData(char *variable_identifier, double latitude, double longitude, uint64_t timestamp_ms);
 
 void submitData_task(void *pvParameters)
 {
@@ -43,7 +43,7 @@ void submitData_task(void *pvParameters)
         xEventGroupWaitBits(OtaEvents, OTA_NOT_IN_PROGRESS_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
         submitFloatData(variable_identifier, variable_value, timestamp_ms);
 
-        vTaskDelay(5000 / portTICK_PERIOD_MS);
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 }
 
@@ -81,7 +81,7 @@ static bool submitFloatData(char *variable_identifier, float variable_value, uin
     }
 }
 
-static bool submitGeoData(char *variable_identifier, float latitude, float longitude, uint64_t timestamp_ms)
+static bool submitGeoData(char *variable_identifier, double latitude, double longitude, uint64_t timestamp_ms)
 {
     return true;
 }
