@@ -60,6 +60,7 @@ void syncTime_task(void *pvParameters)
     while (1)
     {
         xEventGroupWaitBits(ConnectionEvents, WIFI_CONNECTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
+        xEventGroupWaitBits(OtaEvents, OTA_NOT_IN_PROGRESS_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
         ++boot_count;
         ESP_LOGI(TAG, "Boot count: %d", boot_count);
 

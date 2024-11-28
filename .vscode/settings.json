@@ -35,7 +35,8 @@
         "freertos.h": "c",
         "esp_system.h": "c",
         "submitdata.h": "c",
-        "cstdlib": "c"
+        "cstdlib": "c",
+        "anedya_op_commands.h": "c"
     },
     "idf.flashType": "UART"
 }

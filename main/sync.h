@@ -27,8 +27,10 @@ extern EventGroupHandle_t OtaEvents;
 
 #define WIFI_FAIL_BIT BIT0
 #define WIFI_CONNECTED_BIT BIT1
+#define MQTT_CONNECTED_BIT BIT2
+
 #define OTA_NOT_IN_PROGRESS_BIT BIT2
-#define SYNCED_DEVICE_TIME_BIT BIT3
+#define SYNCED_DEVICE_TIME_BIT BIT4
 void TXN_COMPLETE(anedya_txn_t *txn, anedya_context_t ctx);
 
 #endif
