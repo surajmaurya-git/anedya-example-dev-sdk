@@ -6,15 +6,25 @@
 static const char *TAG = "SubmitData";
 static TaskHandle_t current_task;
 
-char * variable_identifier = "temp";
-float temp_data=5.20;
-uint64_t timestamp_ms=0;
+// Float Data variables
+char *variable_identifier = "temp";
+float variable_value = 5.20;
+
+// Geo Data variables
+char *geo_variable_identifier = "location";
+double latitude = 0.0;
+double longitude = 0.0;
+
+uint64_t timestamp_ms = 0;
+
+static bool submitFloatData(char *variable_identifier, float variable_value, uint64_t timestamp_ms);
+static bool submitGeoData(char *variable_identifier, float latitude, float longitude, uint64_t timestamp_ms);
 
 void submitData_task(void *pvParameters)
 {
     ESP_LOGI(TAG, "Starting Data Submission Task");
     current_task = xTaskGetCurrentTaskHandle();
-    uint32_t ulNotifiedValue;
+
     // Wait for device to connect to WiFi
     xEventGroupWaitBits(ConnectionEvents, WIFI_CONNECTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
     printf("Waiting for client connection\n");
@@ -31,34 +41,47 @@ void submitData_task(void *pvParameters)
             vTaskDelay(1000 / portTICK_PERIOD_MS);
         }
         xEventGroupWaitBits(OtaEvents, OTA_NOT_IN_PROGRESS_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
-
-        // Submit Float Data to Anedya
-        anedya_txn_t sd_txn;
-        anedya_txn_register_callback(&sd_txn, TXN_COMPLETE, &current_task);
-
-        // Submit Data
-        anedya_err_t aerr = anedya_op_submit_float_req(&anedya_client, &sd_txn, variable_identifier, temp_data, timestamp_ms);
-        if (aerr != ANEDYA_OK)
-        {
-            ESP_LOGI("CLIENT", "%s", anedya_err_to_name(aerr));
-        }
-        xTaskNotifyWait(0x00, ULONG_MAX, &ulNotifiedValue, 30000 / portTICK_PERIOD_MS);
-        if (ulNotifiedValue == 0x01)
-        {
-            if (sd_txn.is_success && sd_txn.is_complete)
-            {
-                ESP_LOGI(TAG, "Data Pushed to Anedya");
-            }
-            else
-            {
-                ESP_LOGI(TAG, "Failed to pushed data to Anedya, Check Variable Identifier");
-            }
-        }
-        else
-        {
-            ESP_LOGI("CLIENT", "TXN Timeout");
-        }
+        submitFloatData(variable_identifier, variable_value, timestamp_ms);
 
         vTaskDelay(5000 / portTICK_PERIOD_MS);
     }
+}
+
+static bool submitFloatData(char *variable_identifier, float variable_value, uint64_t timestamp_ms)
+{
+    // Submit Float Data to Anedya
+    uint32_t ulNotifiedValue;
+    anedya_txn_t sd_txn;
+    anedya_txn_register_callback(&sd_txn, TXN_COMPLETE, &current_task);
+
+    // Submit Data
+    anedya_err_t aerr = anedya_op_submit_float_req(&anedya_client, &sd_txn, variable_identifier, variable_value, timestamp_ms);
+    if (aerr != ANEDYA_OK)
+    {
+        ESP_LOGI("CLIENT", "%s", anedya_err_to_name(aerr));
+    }
+    xTaskNotifyWait(0x00, ULONG_MAX, &ulNotifiedValue, 30000 / portTICK_PERIOD_MS);
+    if (ulNotifiedValue == 0x01)
+    {
+        if (sd_txn.is_success && sd_txn.is_complete)
+        {
+            printf("%s: Data Pushed to Anedya\n", TAG);
+            return true;
+        }
+        else
+        {
+            ESP_LOGE(TAG, "Failed to pushed data to Anedya, Check Variable Identifier");
+            return false;
+        }
+    }
+    else
+    {
+        ESP_LOGI("CLIENT", "TXN Timeout");
+        return false;
+    }
+}
+
+static bool submitGeoData(char *variable_identifier, float latitude, float longitude, uint64_t timestamp_ms)
+{
+    return true;
 }

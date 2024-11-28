@@ -19,6 +19,8 @@ sync_data_t gatewaystate;
 anedya_config_t anedya_client_config;
 anedya_client_t anedya_client;
 
+static const char *TAG = "MAIN";
+
 static void MQTT_ON_Connect(anedya_context_t ctx)
 {
     ESP_LOGI("CLIENT", "On connect handler");
@@ -107,12 +109,12 @@ void app_main(void)
         if (ulNotifiedValue == 0x01)
         {
             // ESP_LOGI("CLIENT", "TXN Complete");
-            ESP_LOGI("CLIENT", "Heartbeat sent");
+            printf("%s: Heartbeat sent\n", TAG);
         }
         else
         {
             // ESP_LOGI("CLIENT", "TXN Timeout");
-            ESP_LOGI("CLIENT", "Failed to sent heartbeat");
+            ESP_LOGE(TAG, "Failed to sent heartbeat");
         }
 
         vTaskDelay(30000 / portTICK_PERIOD_MS);
