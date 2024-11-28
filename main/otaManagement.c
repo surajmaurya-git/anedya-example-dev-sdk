@@ -88,9 +88,9 @@ void ota_management_task(void *pvParameters)
                 anedya_txn_t update_txn;
                 anedya_txn_register_callback(&update_txn, TXN_COMPLETE, &current_task);
                 anedya_err_t uerr = anedya_op_ota_update_status_req(&anedya_client, &update_txn, &update_status);
-                if (aerr != ANEDYA_OK)
+                if (uerr != ANEDYA_OK)
                 {
-                    ESP_LOGI("OTA", "%s", anedya_err_to_name(aerr));
+                    ESP_LOGI("OTA", "%s", anedya_err_to_name(uerr));
                 }
                 xTaskNotifyWait(0x00, ULONG_MAX, &ulNotifiedValue, 30000 / portTICK_PERIOD_MS);
                 if (ulNotifiedValue == 0x01)
