@@ -104,10 +104,10 @@ void app_main(void)
     xEventGroupWaitBits(event_group, BIT3, pdFALSE, pdFALSE, 30000 / portTICK_PERIOD_MS);
 
     // Start OTA Task
-    // xTaskCreate(ota_management_task, "OTA", 40960, &gatewaystate, 1, NULL);
+    xTaskCreate(ota_management_task, "OTA", 40960, &gatewaystate, 1, NULL);
 
     // Submit Data Task
-    // xTaskCreate(submitData_task, "SUBMITDATA", 40960, NULL, 1, NULL);
+    xTaskCreate(submitData_task, "SUBMITDATA", 40960, NULL, 1, NULL);
 
     // Get Commands Task
     xTaskCreate(getCommands_task, "GETCOMMANDS", 40960, NULL, 1, NULL);
