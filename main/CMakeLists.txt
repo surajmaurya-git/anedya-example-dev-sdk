@@ -1,2 +1,2 @@
-idf_component_register(SRCS  "wifi.c" "uuid.c" "ota_management.c" "sync.c" "main.c"
+idf_component_register(SRCS  "submitData.c" "wifi.c" "uuid.c" "otaManagement.c" "sync.c" "main.c"
                     INCLUDE_DIRS ".")

@@ -8,7 +8,8 @@
 #include "esp_wifi.h"
 
 #include "sync.h"
-#include "ota_management.h"
+#include "otaManagement.h"
+#include "submitData.h"
 
 #include "sync.h"
 #include "wifi.h"
@@ -83,12 +84,15 @@ void app_main(void)
     // Start OTA Task
     xTaskCreate(ota_management_task, "OTA", 40960, &gatewaystate, 1, NULL);
 
+    //Submit Data Task
+    xTaskCreate(submitData_task, "SUBMITDATA", 40960, NULL, 1, NULL);
+
     for (;;)
     {
         xEventGroupWaitBits(OtaEvents, OTA_NOT_IN_PROGRESS_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
 
         printf("==========================================================\n");
-        printf(" Version | 0.7.1\n");
+        printf(" Version | 0.8.0\n");
         printf("==========================================================\n");
 
         // Send heartbeats
