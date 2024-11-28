@@ -14,6 +14,7 @@
 #include "sync.h"
 #include "wifi.h"
 #include "uuid.h"
+#include "timeManagement.h"
 
 sync_data_t gatewaystate;
 anedya_config_t anedya_client_config;
@@ -55,6 +56,7 @@ void app_main(void)
     EventGroupHandle_t event_group = xEventGroupCreate();
     ConnectionEvents = xEventGroupCreate();
     OtaEvents = xEventGroupCreate();
+    gatewaystate.DeviceTimeEvents = xEventGroupCreate();
 
     uint32_t ulNotifiedValue;
 
@@ -65,6 +67,9 @@ void app_main(void)
     // Start WiFi Task
     xTaskCreate(wifi_task, "WIFI", 4096, NULL, 1, NULL);
     xEventGroupWaitBits(ConnectionEvents, WIFI_CONNECTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
+
+     xTaskCreate(&syncTime_task, "syncTime", 4096, &gatewaystate, 1, NULL);
+    xEventGroupWaitBits(gatewaystate.DeviceTimeEvents, SYNCED_DEVICE_TIME_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
 
     anedya_config_init(&anedya_client_config, devid, connkey, strlen(connkey)); // Initialize config
     anedya_config_set_connect_cb(&anedya_client_config, MQTT_ON_Connect, &event_group); // Set connect callback

@@ -2,6 +2,7 @@
 #include "sync.h"
 #include "anedya.h"
 #include "esp_log.h"
+#include <time.h>
 
 static const char *TAG = "SubmitData";
 static TaskHandle_t current_task;
@@ -41,6 +42,7 @@ void submitData_task(void *pvParameters)
             vTaskDelay(1000 / portTICK_PERIOD_MS);
         }
         xEventGroupWaitBits(OtaEvents, OTA_NOT_IN_PROGRESS_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
+        timestamp_ms = (uint64_t)time(NULL) * 1000;
         submitFloatData(variable_identifier, variable_value, timestamp_ms);
 
         vTaskDelay(1000 / portTICK_PERIOD_MS);
