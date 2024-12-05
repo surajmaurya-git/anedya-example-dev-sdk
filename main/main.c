@@ -7,6 +7,7 @@
 #include "esp_wifi.h"
 #include "freertos/event_groups.h"
 #include "esp_system.h"
+#include "driver/gpio.h"
 
 #include "wifi.h"
 #include "sync.h"
@@ -15,13 +16,10 @@
 #include "timeManagement.h"
 #include "otaManagement.h"
 #include "submitData.h"
-#include "getCommands.h"
-
 
 sync_data_t gatewaystate;
 anedya_config_t anedya_client_config;
 anedya_client_t anedya_client;
-command_handler_t command_handler;
 
 static const char *TAG = "MAIN";
 
@@ -31,7 +29,6 @@ static void MQTT_ON_Connect(anedya_context_t ctx)
     EventGroupHandle_t *handle = (EventGroupHandle_t *)ctx;
     xEventGroupSetBits(*handle, BIT3);
     xEventGroupSetBits(ConnectionEvents, MQTT_CONNECTED_BIT);
-
 }
 
 static void MQTT_ON_Disconnect(anedya_context_t ctx)
@@ -44,16 +41,46 @@ void cl_event_handler(anedya_client_t *client, anedya_event_t event, void *event
 {
     switch (event)
     {
+    // Handler for command events
+    case ANEDYA_EVENT_COMMAND:
+        anedya_command_obj_t *command_obj = (anedya_command_obj_t *)event_data;
+        printf(" Received Commands: %s\n", command_obj->command);
+        if (command_obj->cmd_data_type == ANEDYA_DATATYPE_STRING)
+        {
+            if (strcmp(command_obj->command, "led") == 0)
+            {
+                if (strcmp(command_obj->data, "on") == 0)
+                {
+                    gpio_set_level(GPIO_NUM_2, true);
+                    printf("Led turned on\n");
+                }
+                else if (strcmp(command_obj->data, "off") == 0)
+                {
+                    gpio_set_level(GPIO_NUM_2, false);
+                    printf("Led turned off\n");
+                }
+                else
+                {
+                    ESP_LOGE(TAG, "Invalid Command");
+                }
+            }
+        }
+        else if (command_obj->cmd_data_type == ANEDYA_DATATYPE_BINARY)
+        {
+            printf("Data: ");
+            for (int i = 0; i < command_obj->data_len; i++)
+            {
+                printf("%c", command_obj->data[i]);
+            }
+            printf("\n");
+        }
+        break;
+        
     case ANEDYA_EVENT_VS_UPDATE_FLOAT:
         printf(" Received Events \n");
         ESP_LOGI("CLIENT", "Valuestore update notified: float");
         anedya_valustore_obj_float_t *data = (anedya_valustore_obj_float_t *)event_data;
         ESP_LOGI("CLIENT", "Key Updated: %s Value:%f", data->key, data->value);
-        break;
-    case ANEDYA_EVENT_COMMAND:
-        printf(" Received Commands \n");
-        command_handler.command_obj = (anedya_command_obj_t *)event_data;
-        command_handler.is_command_processed = 0;
         break;
     case ANEDYA_EVENT_VS_UPDATE_BOOL:
         printf(" Received Events \n");
@@ -109,8 +136,8 @@ void app_main(void)
     // Submit Data Task
     xTaskCreate(submitData_task, "SUBMITDATA", 40960, NULL, 1, NULL);
 
-    // Get Commands Task
-    xTaskCreate(getCommands_task, "GETCOMMANDS", 40960, NULL, 1, NULL);
+    // Set GPIO 2 as output
+    gpio_set_direction(GPIO_NUM_2, GPIO_MODE_OUTPUT);
 
     for (;;)
     {
@@ -140,7 +167,6 @@ void app_main(void)
             // ESP_LOGI("CLIENT", "TXN Timeout");
             ESP_LOGE(TAG, "Failed to sent heartbeat");
         }
-
 
         vTaskDelay(30000 / portTICK_PERIOD_MS);
     }
