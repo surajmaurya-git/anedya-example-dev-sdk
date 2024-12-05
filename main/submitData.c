@@ -9,26 +9,29 @@ static const char *TAG = "SubmitData";
 static TaskHandle_t current_task;
 
 // Float Data variables
-const char *variable_identifier = "temp";
+ char *variable_identifier = "temperature";
 float variable_value = 5.20;
 
 // Geo Data variables
-const char *geo_variable_identifier = "location";
-float latitude = 23.074313643169155;
-float longitude = 72.52077482416072;
+char *geo_variable_identifier = "location";
+float latitude = 28.644889;
+float longitude = 77.21400;
 
-uint64_t timestamp_ms = 0;
+// Initialize global variable
+uint64_t timestamp_ms = 0; 
 
 static bool submitFloatData(char *variable_identifier, float variable_value, uint64_t timestamp_ms);
 static bool submitGeoData(char *variable_identifier, float latitude, float longitude, uint64_t timestamp_ms);
 
 void submitData_task(void *pvParameters)
 {
+    xEventGroupWaitBits(ConnectionEvents, WIFI_CONNECTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
+    xEventGroupWaitBits(ConnectionEvents, MQTT_CONNECTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
+
     ESP_LOGI(TAG, "Starting Data Submission Task");
     current_task = xTaskGetCurrentTaskHandle();
 
     // Wait for device to connect to WiFi
-    xEventGroupWaitBits(ConnectionEvents, WIFI_CONNECTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
     printf("Waiting for client connection\n");
     while (!anedya_client.is_connected)
     {
@@ -46,9 +49,13 @@ void submitData_task(void *pvParameters)
         xEventGroupWaitBits(ConnectionEvents, MQTT_CONNECTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
         
         timestamp_ms = (uint64_t)time(NULL) * 1000;
-
+// ============================================== Submit Float Data to Anedya ========================================================
         submitFloatData(variable_identifier, variable_value, timestamp_ms);
+// ===================================================================================================================================
+
+// ============================================== Submit Geo Data to Anedya ==========================================================
         submitGeoData(geo_variable_identifier, latitude, longitude, timestamp_ms);
+// ===================================================================================================================================
 
         vTaskDelay(5000 / portTICK_PERIOD_MS);
     }
@@ -72,7 +79,9 @@ static bool submitFloatData(char *variable_identifier, float variable_value, uin
     {
         if (sd_txn.is_success && sd_txn.is_complete)
         {
-            printf("%s: %s Data Pushed to Anedya\n", TAG, variable_identifier);
+            printf("-----------------------------------------\n");
+            printf("%s:'%s' Data Pushed to Anedya\n", TAG, variable_identifier);
+            printf("-----------------------------------------\n");
             return true;
         }
         else
@@ -110,7 +119,9 @@ static bool submitGeoData(char *variable_identifier, float latitude, float longi
     {
         if (sd_txn.is_success && sd_txn.is_complete)
         {
-            printf("%s: %s Data Pushed to Anedya\n", TAG, variable_identifier);
+            printf("-----------------------------------------\n");
+            printf("%s: '%s' Data Pushed to Anedya\n", TAG, variable_identifier);
+            printf("-----------------------------------------\n");
             return true;
         }
         else

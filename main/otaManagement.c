@@ -6,6 +6,7 @@
 
 static sync_data_t *sync_data;
 static TaskHandle_t current_task;
+static char asset_version[50]={0};
 
 static esp_err_t do_firmware_update(anedya_op_next_ota_resp_t *resp);
 
@@ -76,6 +77,10 @@ void ota_management_task(void *pvParameters)
                 ESP_LOGI("OTA", "Asset Size: %d", resp.asset.asset_size);
                 ESP_LOGI("OTA", "Asset URL: %s", resp.asset.asset_url);
 
+                for(int i = 0; i < resp.asset.asset_version_len; i++){
+                    asset_version[i] = resp.asset.asset_version[i];
+                }
+
                 // TODO: Anedya update OTA status to start
                 anedya_req_ota_update_status_t update_status = {
                     .deployment_id = resp.deployment_id,
@@ -144,6 +149,7 @@ void ota_management_task(void *pvParameters)
                         else
                         {
                             ESP_ERROR_CHECK_WITHOUT_ABORT(otaerr);
+                            esp_restart();
                         }
                     }
                 }
@@ -156,6 +162,7 @@ void ota_management_task(void *pvParameters)
             else
             {
                 ESP_LOGI("OTA", "No deployment available");
+                printf("Current Asset Version: %s\n", asset_version);
             }
         }
         vTaskDelay(11000 / portTICK_PERIOD_MS);

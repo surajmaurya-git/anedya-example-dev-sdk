@@ -126,7 +126,7 @@ void syncTime_task(void *pvParameters)
         // ESP_LOGI(TAG, "Entering deep sleep for %d seconds", deep_sleep_sec);
         // esp_deep_sleep(1000000LL * deep_sleep_sec);
 
-        vTaskDelay(60000 / portTICK_PERIOD_MS);
+        vTaskDelay(600000 / portTICK_PERIOD_MS);
     }
 }
 
