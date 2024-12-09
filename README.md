@@ -7,11 +7,14 @@
         - Store phy calibration data in NVS
         - WiFi NVS flash
     2. Select Flash Size 4MB.
-    3. Select `Partition Table` -> Custome partition table csv
-    4. Fill Anedya Credentials
+    3. Select `Partition Table` -> Custom partition table csv
+    4. Add anedya root certificate
+        - Tick "Add custom certificates to the default bundle" and provide path "./certs
+        - Select "use only the most common certificates from the default bundle" in "Default certificate bundle options".
+    5. Fill Anedya Credentials
         - Connection Key
         - Physical Device ID
-    5. Fill Wifi Credentials
+    6. Fill Wifi Credentials
         - SSID
         - Password
 
