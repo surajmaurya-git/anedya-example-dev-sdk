@@ -17,7 +17,7 @@
     6. Fill Wifi Credentials
         - SSID
         - Password
-
+    7. Allocate "Main stack Size"-"10240".
 
 
 > [!TIP]
