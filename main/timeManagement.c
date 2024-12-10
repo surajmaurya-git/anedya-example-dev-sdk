@@ -234,12 +234,3 @@ static void obtain_time(void)
     // ESP_ERROR_CHECK(example_disconnect());
     esp_netif_sntp_deinit();
 }
-
-int64_t get_unix_current_time_ms(void)
-{
-    struct timeval tv_now;
-    gettimeofday(&tv_now, NULL);
-    int64_t time_us = (int64_t)tv_now.tv_sec * 1000000L + (int64_t)tv_now.tv_usec;
-    int64_t time_ms = (int64_t)time_us / 1000;
-    return time_ms;
-}
