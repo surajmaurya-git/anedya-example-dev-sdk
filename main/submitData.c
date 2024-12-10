@@ -79,9 +79,9 @@ static bool submitFloatData(char *variable_identifier, float variable_value, uin
     {
         if (sd_txn.is_success && sd_txn.is_complete)
         {
-            printf("-----------------------------------------\n");
-            printf("%s:'%s' Data Pushed to Anedya\n", TAG, variable_identifier);
-            printf("-----------------------------------------\n");
+            ESP_LOGI(TAG,"-----------------------------------------");
+            ESP_LOGI(TAG,"'%s' Data Pushed to Anedya", variable_identifier);
+            ESP_LOGI(TAG,"-----------------------------------------");
             return true;
         }
         else
@@ -119,9 +119,9 @@ static bool submitGeoData(char *variable_identifier, float latitude, float longi
     {
         if (sd_txn.is_success && sd_txn.is_complete)
         {
-            printf("-----------------------------------------\n");
-            printf("%s: '%s' Data Pushed to Anedya\n", TAG, variable_identifier);
-            printf("-----------------------------------------\n");
+            ESP_LOGI(TAG,"-----------------------------------------");
+            ESP_LOGI(TAG,"'%s' Data Pushed to Anedya", variable_identifier);
+            ESP_LOGI(TAG,"-----------------------------------------");
             return true;
         }
         else

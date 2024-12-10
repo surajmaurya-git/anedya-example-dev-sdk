@@ -4,14 +4,14 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
-#include "uuid.h"
+// #include "uuid.h"
 #include "anedya.h"
 
 typedef struct {
     EventGroupHandle_t ConnectionEvents;
     EventGroupHandle_t DeviceEvents;
     EventGroupHandle_t DeviceTimeEvents;
-    uuid_t device_uuid;
+    anedya_uuid_t device_uuid;
     bool device_bound;
     char ID[15];
 } sync_data_t;

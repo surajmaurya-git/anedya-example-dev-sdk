@@ -152,7 +152,7 @@ void app_main(void)
     xTaskCreate(wifi_task, "WIFI", 4096, NULL, 1, NULL);
     xEventGroupWaitBits(ConnectionEvents, WIFI_CONNECTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
 
-    xTaskCreate(&syncTime_task, "syncTime", 4096, &gatewaystate, 1, NULL);
+    xTaskCreate(&syncTime_task, "syncTime", 4096, &gatewaystate, 4, NULL);
     xEventGroupWaitBits(gatewaystate.DeviceTimeEvents, SYNCED_DEVICE_TIME_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
 
     // ============================================= Anedya Config =============================================================
@@ -207,12 +207,12 @@ void app_main(void)
     // =============================================== Handle OTA ================================================================
     // Manage Firmware Updates through Aneyda, For more info visit: https://docs.anedya.io/ota
 
-    xTaskCreate(ota_management_task, "OTA", 40960, &gatewaystate, 1, NULL);
+    xTaskCreate(ota_management_task, "OTA", 10240, &gatewaystate, 1, NULL);
 
     // =============================================== Submit data to Anedya =====================================================
     // For more info visit: https://docs.anedya.io/getting-started/quickstart/
 
-    xTaskCreate(submitData_task, "SUBMITDATA", 40960, NULL, 1, NULL);
+    xTaskCreate(submitData_task, "SUBMITDATA", 5000, NULL, 2, NULL);
 
     // ======================================================= Set and Get Key Value  ============================================
     // For more info visit: https://docs.anedya.io/valuestore
@@ -274,7 +274,7 @@ void app_main(void)
         xEventGroupWaitBits(ConnectionEvents, MQTT_CONNECTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
         xEventGroupWaitBits(OtaEvents, OTA_NOT_IN_PROGRESS_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
 
-        printf("Version | 0.0.7\n");
+        printf("Version | 0.10.0\n");
 
         anedya_txn_t hb_txn;
         anedya_txn_register_callback(&hb_txn, TXN_COMPLETE, &current_task);

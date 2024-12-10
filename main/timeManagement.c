@@ -6,7 +6,6 @@
    software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
    CONDITIONS OF ANY KIND, either express or implied.
 */
-#include"timeManagement.h"
 
 #include <string.h>
 #include <time.h>
@@ -22,6 +21,7 @@
 #include "esp_sntp.h"
 
 #include "wifi.h"
+#include"timeManagement.h"
 
 static const char *TAG = "TIME_MANAGEMENT";
 

@@ -10,6 +10,16 @@ static char asset_version[50]={0};
 
 static esp_err_t do_firmware_update(anedya_op_next_ota_resp_t *resp);
 
+#define UUID_STR_LEN 37
+static void uuid_unparse(const anedya_uuid_t uu, char *out)
+{
+    snprintf(out, UUID_STR_LEN,
+             "%02x%02x%02x%02x-%02x%02x-%02x%02x-"
+             "%02x%02x-%02x%02x%02x%02x%02x%02x",
+             uu[0], uu[1], uu[2], uu[3], uu[4], uu[5], uu[6], uu[7], uu[8], uu[9], uu[10], uu[11],
+             uu[12], uu[13], uu[14], uu[15]);
+}
+
 void ota_management_task(void *pvParameters)
 {
 
@@ -162,7 +172,7 @@ void ota_management_task(void *pvParameters)
             else
             {
                 ESP_LOGI("OTA", "No deployment available");
-                printf("Current Asset Version: %s\n", asset_version);
+                // printf("Current Asset Version: %s\n", asset_version);
             }
         }
         vTaskDelay(11000 / portTICK_PERIOD_MS);

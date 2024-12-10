@@ -36,7 +36,8 @@
         "esp_system.h": "c",
         "submitdata.h": "c",
         "cstdlib": "c",
-        "anedya_op_commands.h": "c"
+        "anedya_op_commands.h": "c",
+        "anedya_config.h": "c"
     },
     "idf.flashType": "UART"
 }
