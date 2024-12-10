@@ -11,7 +11,6 @@
 
 #include "wifi.h"
 #include "sync.h"
-#include "uuid.h"
 
 #include "timeManagement.h"
 #include "otaManagement.h"
@@ -22,6 +21,10 @@ anedya_config_t anedya_client_config;
 anedya_client_t anedya_client;
 
 static const char *TAG = "MAIN";
+
+static uint32_t ulNotifiedValue;
+static TaskHandle_t current_task;
+static EventGroupHandle_t event_group;
 
 static void MQTT_ON_Connect(anedya_context_t ctx)
 {
@@ -60,25 +63,39 @@ void cl_event_handler(anedya_client_t *client, anedya_event_t event, void *event
         {
             if (strcmp(command_obj->command, "led") == 0)
             {
+
+                anedya_txn_t cmd_txn;
+                anedya_txn_register_callback(&cmd_txn, TXN_COMPLETE, &current_task);
                 if (strcmp(command_obj->data, "on") == 0)
                 {
                     gpio_set_level(GPIO_NUM_2, true);
                     printf("Led turned on\n");
                     command_status_update.status = ANEDYA_CMD_STATUS_SUCCESS;
-                    anedya_op_cmd_status_update(&anedya_client, NULL, &command_status_update);
+                    anedya_op_cmd_status_update(&anedya_client, &cmd_txn,&command_status_update);
                 }
                 else if (strcmp(command_obj->data, "off") == 0)
                 {
                     gpio_set_level(GPIO_NUM_2, false);
                     printf("Led turned off\n");
                     command_status_update.status = ANEDYA_CMD_STATUS_SUCCESS;
-                    anedya_op_cmd_status_update(&anedya_client, NULL, &command_status_update);
+                    anedya_op_cmd_status_update(&anedya_client, &cmd_txn, &command_status_update);
                 }
                 else
                 {
                     command_status_update.status = ANEDYA_CMD_STATUS_FAILED;
-                    anedya_op_cmd_status_update(&anedya_client, NULL, &command_status_update);
+                    anedya_op_cmd_status_update(&anedya_client, &cmd_txn, &command_status_update);
                     ESP_LOGE(TAG, "Invalid Command");
+                }
+
+                xTaskNotifyWait(0x00, ULONG_MAX, &ulNotifiedValue, 30000 / portTICK_PERIOD_MS);
+                if (ulNotifiedValue == 0x01){
+                    if (cmd_txn.is_success && cmd_txn.is_complete){
+                        printf("-----------------------------------------\n");
+                        printf("%s: Command Status Updated\n", TAG);
+                        printf("-----------------------------------------\n");
+                    }else{
+                        ESP_LOGE(TAG, "Command Status Update Failed");
+                    }
                 }
             }
         }
@@ -92,6 +109,7 @@ void cl_event_handler(anedya_client_t *client, anedya_event_t event, void *event
             printf("\n");
         }
         break;
+
         // =======================================================================================================================
         // ============================================== Valuestore Handler =====================================================
         //                                      It Will be called when valuestore is updated
@@ -114,16 +132,16 @@ void cl_event_handler(anedya_client_t *client, anedya_event_t event, void *event
 void app_main(void)
 {
     char connkey[64] = CONFIG_CONNECTION_KEY; // Connection Key to connect to anedya
-    uuid_t devid;
-    uuid_parse(CONFIG_PHYSICAL_DEVICE_ID, devid); // UUID of the device
+    anedya_device_id_t devid;
+    anedya_parse_device_id(CONFIG_PHYSICAL_DEVICE_ID, devid); // UUID of the device
 
-    TaskHandle_t current_task = xTaskGetCurrentTaskHandle();
-    EventGroupHandle_t event_group = xEventGroupCreate();
+    current_task = xTaskGetCurrentTaskHandle();
+    event_group = xEventGroupCreate();
     ConnectionEvents = xEventGroupCreate();
     OtaEvents = xEventGroupCreate();
     gatewaystate.DeviceTimeEvents = xEventGroupCreate();
 
-    uint32_t ulNotifiedValue;
+   
     // Set GPIO 2 as output
     gpio_set_direction(GPIO_NUM_2, GPIO_MODE_OUTPUT);
 
@@ -157,10 +175,11 @@ void app_main(void)
 
     anedya_txn_t lg_txn;
     anedya_txn_register_callback(&lg_txn, TXN_COMPLETE, &current_task);
-    unsigned long timestamp_ms = (unsigned long)time(NULL) * 1000;
+    uint64_t timestamp_ms = (uint64_t)time(NULL) * 1000;
+    printf("Time Stamp: %llu\n", timestamp_ms);
     char message[13] = "DeviceBooted";
     // =================================================== Submit Log to Anedya ==================================================
-    anedya_err_t err = anedya_op_submit_log(&anedya_client, &lg_txn, message, 13, timestamp_ms);
+    anedya_err_t err = anedya_op_submit_log(&anedya_client, &lg_txn, message, strlen(message), timestamp_ms);
     // ===========================================================================================================================
     if (err != ANEDYA_OK)
     {
@@ -247,12 +266,15 @@ void app_main(void)
         // ESP_LOGI("CLIENT", "TXN Timeout");
         ESP_LOGE(TAG, "Failed to set Key Value to Anedya");
     }
+
     // ===========================================================================================================================
 
     for (;;)
     {
         xEventGroupWaitBits(ConnectionEvents, MQTT_CONNECTED_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
         xEventGroupWaitBits(OtaEvents, OTA_NOT_IN_PROGRESS_BIT, pdFALSE, pdFALSE, portMAX_DELAY);
+
+        printf("Version | 0.0.7\n");
 
         anedya_txn_t hb_txn;
         anedya_txn_register_callback(&hb_txn, TXN_COMPLETE, &current_task);
