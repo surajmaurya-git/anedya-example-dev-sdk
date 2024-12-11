@@ -1,0 +1,9 @@
+dependencies:
+  idf: '>=5.0'
+description: 'Anedya SDK for ESP-IDF: Connect your IoT Device seamlessly with Anedya
+  Cloud'
+documentation: https://docs.anedya.io/
+license: Apache-2.0
+repository: https://github.com/anedyaio/anedya-dev-sdk-esp-idf
+url: https://anedya.io/
+version: 0.0.9
