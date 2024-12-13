@@ -1,14 +1,15 @@
-# Anedya ESP-IDF Example
-
 [![Anedya Documentation](https://img.shields.io/badge/Anedya-Documentation-blue?style=for-the-badge)](https://docs.anedya.io?utm_source=github&utm_medium=link&utm_campaign=github-examples&utm_content=esp32-idf)
 
-## Overview
+# anedya-dev-esp-id-example
 
-This repository provides an example of how to integrate Anedya with an ESP32 project using the ESP-IDF framework. Anedya is a platform for managing IoT devices, enabling seamless device management, data storage, and analytics.
+
+Anedya-Dev-ESP-IDF examples.
+
+--- 
 
 ## Getting Started with Anedya
 
-To set up your project with Anedya, follow these steps:
+Follow these steps to set up your project with Anedya:
 
 1. **Create an Anedya Account**:
    - Sign up for an account at [Anedya](https://anedya.io) and log in.
@@ -17,12 +18,12 @@ To set up your project with Anedya, follow these steps:
    - In the Anedya Dashboard, create a new project to organize your devices and data.
 
 3. **Define Variables**:
-   - Define variables like `temperature` and `humidity` for your project to track device data.
+   - Define variables (e.g., `temperature`, `humidity`) for your project to track device data.
 
 4. **Add a Node**:
-   - Create a node to represent a physical device (e.g., "Room1" or "Study Room"). This will allow you to interact with the actual IoT hardware.
+   - Create a node to represent a physical device (e.g., "Room1" or "Study Room") to interact with the hardware.
 
-> **Note**: Make sure to correctly fill in the variable identifiers as they are crucial for data mapping between the physical device and the Anedya platform.
+> **Note**: Ensure you fill in the variable identifiers correctly, as they are crucial for mapping the data between your physical device and the Anedya platform.
 
 ---
 
@@ -36,14 +37,16 @@ To configure your project with the correct settings in ESP-IDF, follow these ste
      - WiFi NVS flash
 
 2. **Select Flash Size**:
-   - Set the flash size to `4MB`.
+   - Set the flash size of your device.
+
+> **Note**: This example has been tested with the ESP32-S3 board and 4MB flash.
 
 3. **Partition Table**:
    - Choose the `Custom partition table CSV` option.
 
 4. **Add Anedya Root Certificate**:
    - Tick the "Add custom certificates to the default bundle" option.
-   - Provide the certificate path, e.g., `./certs`.
+   - Provide the path to the certificate, e.g., `./certs`.
    - In the "Default certificate bundle options", select "Use only the most common certificates from the default bundle".
 
 5. **Configure Anedya Credentials**:
@@ -52,7 +55,7 @@ To configure your project with the correct settings in ESP-IDF, follow these ste
      - **Physical Device ID**
 
 6. **Configure Wi-Fi Credentials**:
-   - Provide the Wi-Fi details:
+   - Provide your Wi-Fi details:
      - **SSID**
      - **Password**
 
@@ -63,7 +66,7 @@ To configure your project with the correct settings in ESP-IDF, follow these ste
 
 ## Example Usage
 
-Depending on your use case, you can enable or disable the tasks in main.c.
+Depending on your use case, you can enable or disable tasks in the `main.c` file.
 
 ---
 
