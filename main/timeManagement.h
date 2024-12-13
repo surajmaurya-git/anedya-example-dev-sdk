@@ -6,8 +6,6 @@
 
 
 void syncTime_task(void *pvParameters);
-int64_t get_unix_current_time_ms(void);
-
 
 #endif // !_TIMEMANAGEMENT_H_
 

@@ -6,10 +6,19 @@
 
 static sync_data_t *sync_data;
 static TaskHandle_t current_task;
+static char asset_version[50]={0};
 
 static esp_err_t do_firmware_update(anedya_op_next_ota_resp_t *resp);
-static void EscapeQuestionMarks(char *input, char *output);
 
+#define UUID_STR_LEN 37
+static void uuid_unparse(const anedya_uuid_t uu, char *out)
+{
+    snprintf(out, UUID_STR_LEN,
+             "%02x%02x%02x%02x-%02x%02x-%02x%02x-"
+             "%02x%02x-%02x%02x%02x%02x%02x%02x",
+             uu[0], uu[1], uu[2], uu[3], uu[4], uu[5], uu[6], uu[7], uu[8], uu[9], uu[10], uu[11],
+             uu[12], uu[13], uu[14], uu[15]);
+}
 
 void ota_management_task(void *pvParameters)
 {
@@ -77,9 +86,11 @@ void ota_management_task(void *pvParameters)
                 ESP_LOGI("OTA", "Asset Version: %s", resp.asset.asset_version);
                 ESP_LOGI("OTA", "Asset Size: %d", resp.asset.asset_size);
                 ESP_LOGI("OTA", "Asset URL: %s", resp.asset.asset_url);
-                // EscapeQuestionMarks(resp.asset.asset_url, URL);
-                // strcpy(resp.asset.asset_url, URL);
-                // ESP_LOGI("OTA", "Parsed Asset URL: %s", resp.asset.asset_url);
+
+                for(int i = 0; i < resp.asset.asset_version_len; i++){
+                    asset_version[i] = resp.asset.asset_version[i];
+                }
+
                 // TODO: Anedya update OTA status to start
                 anedya_req_ota_update_status_t update_status = {
                     .deployment_id = resp.deployment_id,
@@ -148,6 +159,7 @@ void ota_management_task(void *pvParameters)
                         else
                         {
                             ESP_ERROR_CHECK_WITHOUT_ABORT(otaerr);
+                            esp_restart();
                         }
                     }
                 }
@@ -160,6 +172,7 @@ void ota_management_task(void *pvParameters)
             else
             {
                 ESP_LOGI("OTA", "No deployment available");
+                // printf("Current Asset Version: %s\n", asset_version);
             }
         }
         vTaskDelay(11000 / portTICK_PERIOD_MS);
@@ -235,27 +248,4 @@ static esp_err_t do_firmware_update(anedya_op_next_ota_resp_t *resp)
         return ota_finish_err;
     }
     return ESP_OK;
-}
-
-static void EscapeQuestionMarks(char *input, char *output)
-{
-    bool firstChar = 0;
-    for(int i = 0; i < strlen(input)+ 1; i++)
-    {
-        char c;
-        if(input[i] == '?')
-        {
-            if(firstChar)
-            {
-                c = '&';
-            } else {
-                firstChar = 1;
-                c = input[i];
-            }
-
-        } else {
-            c = input[i];
-        }
-        output[i] = c;
-    }
 }
