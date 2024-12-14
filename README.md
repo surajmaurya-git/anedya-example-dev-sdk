@@ -39,7 +39,7 @@ To configure your project with the correct settings in ESP-IDF, follow these ste
 2. **Select Flash Size**:
    - Set the flash size of your device.
 
-> **Note**: This example has been tested with the ESP32-S3 board and 4MB flash.
+> **Note**: This example has been tested with the ESP32 board with 4MB flash.
 
 3. **Partition Table**:
    - Choose the `Custom partition table CSV` option.

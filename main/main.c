@@ -120,11 +120,11 @@ void app_main(void)
 
 
     // =============================================== Operations ================================================================
-    xTaskCreate(ota_management_task, "OTA", 10240, &gatewaystate, 1, NULL);      // Start OTA Task
-    xTaskCreate(submitData_task, "SUBMITDATA", 5000, NULL, 2, NULL);            // Start Submit Data Task
-    xTaskCreate(valueStore_task, "VALUESTORE", 10240, NULL, 4, NULL);           // Start Valuestore Task
-    xTaskCreate(commandHandling_task, "COMMANDHANDLER", 10240, NULL, 1, NULL);  // Start Command Handler
-    xTaskCreate(submitLog_task, "SUBMITLOG", 10240, NULL, 4, NULL);             // Start Submit Log
+    xTaskCreate(ota_management_task, "OTA", 20480, &gatewaystate, 1, NULL);      // Start OTA Task
+    xTaskCreate(submitData_task, "SUBMITDATA", 4096, NULL, 2, NULL);            // Start Submit Data Task
+    xTaskCreate(valueStore_task, "VALUESTORE", 4096, NULL, 4, NULL);           // Start Valuestore Task
+    xTaskCreate(commandHandling_task, "COMMANDHANDLER", 4096, NULL, 1, NULL);  // Start Command Handler
+    xTaskCreate(submitLog_task, "SUBMITLOG", 4096, NULL, 4, NULL);             // Start Submit Log
 
     for (;;)
     {
@@ -153,6 +153,8 @@ void app_main(void)
             // ESP_LOGI("CLIENT", "TXN Timeout");
             ESP_LOGE(TAG, "Failed to sent heartbeat");
         }
+
+        ESP_LOGI("CLIENT", "Version10");
 
         vTaskDelay(30000 / portTICK_PERIOD_MS);
         // ==========================================================================================================================
